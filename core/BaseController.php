@@ -1,0 +1,7 @@
+<?php
+/**
+* BaseController
+*/
+class BaseController
+{
+}

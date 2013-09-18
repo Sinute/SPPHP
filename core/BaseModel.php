@@ -1,0 +1,7 @@
+<?php
+/**
+* BaseModel
+*/
+class BaseModel
+{
+}
