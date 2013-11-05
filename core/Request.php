@@ -47,7 +47,7 @@ class Request
 	 */
 	public function getAction()
 	{
-		return strtolower($_GET['a']);
+		return $_GET['a'];
 	}
 
 	/**
@@ -56,6 +56,6 @@ class Request
 	 */
 	public function getController()
 	{
-		return strtolower($_GET['c']);
+		return $_GET['c'];
 	}
 }

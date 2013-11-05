@@ -57,6 +57,11 @@ class HttpException extends Exception
 	{
 		$this->__status = $status;
 		$statusText = self::$statusCode[$status];
+		if(IS_CLI)
+		{
+			parent::__construct($message,$code);
+			return;
+		}
 		header( "HTTP/1.1 {$status} {$statusText}" );
 		if((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') || $_GET['ajax'])
 		{

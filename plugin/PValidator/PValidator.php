@@ -32,7 +32,7 @@ class PValidator extends Plugin
 		$method = "__{$method}";
 		foreach ($this->__vars as $var) {
 			$this->__var = $var;
-			if($must === false && $this->__var === null) continue;
+			if($must === false && $this->__var == null) continue;
 			if(method_exists($this, $method) && $this->$method($params)) continue;
 			throw new HttpException($msg, $code);
 		}

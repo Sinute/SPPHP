@@ -1,2 +1,2 @@
 /.htaccess
-/protected/cache/*.bin
+/protected/content/*.bin

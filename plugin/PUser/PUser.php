@@ -7,6 +7,10 @@ class PUser extends Plugin
 	private $__config;
 	private $__algo;
 	private $__isGuest;
+	private $__cookiePath;
+	private $__cookieDomain;
+	private $__cookieSecure;
+	private $__cookieHttpOnly;
 
 	/**
 	 * 构造函数, 读取配置初始化
@@ -18,6 +22,10 @@ class PUser extends Plugin
 		$this->__isGuest = true;
 		$this->__config = $config;
 		$this->__config['authKey'] = $this->__config['authKey'] ? : (SP::PCache()->get(SP::getAppName().'authKey') ? : $this->__generateAuthKey(32));
+		$this->__cookiePath = $this->__config['cookiePath'] ? : '/';
+		$this->__cookieDomain = $this->__config['cookieDomain'] ? : '';
+		$this->__cookieSecure = $this->__config['cookieSecure'] ? : false;
+		$this->__cookieHttpOnly = $this->__config['cookieHttpOnly'] ? : true;
 		if(isset($_SESSION['PUSER']))
 		{
 			$this->__isGuest = false;
@@ -29,22 +37,28 @@ class PUser extends Plugin
 
 	/**
 	 * 登入
-	 * @param  array  $userinfo 用户信息数组
+	 * @param  array  $userInfo 用户信息数组
 	 * @param  integer $expire   过期时间
-	 * @param  string  $path     路径
-	 * @param  string  $domain   域名
-	 * @param  boolean $secure   secure
-	 * @param  boolean $httpOnly httpOnly
 	 */
-	public function signin($userinfo, $expire = 0, $path = '/', $domain = '', $secure = false, $httpOnly = true)
+	public function signin($userInfo, $expire = 0)
 	{
-		$_SESSION['PUSER'] = $userinfo;
+		$_SESSION['PUSER'] = $userInfo;
 		if($expire > 0)
 		{
-			$suserinfo = serialize($userinfo);
-			setcookie('PUSER', hash_hmac($this->__algo, $suserinfo, $this->__config['authKey']).$suserinfo, time() + $expire, $path, $domain, $secure, $httpOnly);
+			$sUserInfo = serialize($userInfo);
+			setcookie('PUSER', hash_hmac($this->__algo, $sUserInfo, $this->__config['authKey']).$sUserInfo, time() + $expire, $this->__cookiePath, $this->__cookieDomain, $this->__cookieSecure, $this->__cookieHttpOnly);
 		}
 		$this->__isGuest = false;
+	}
+
+	/**
+	 * 修改登入信息
+	 * @param  array $userInfo 用户信息数组
+	 */
+	public function changeInfo($userInfo)
+	{
+		$_SESSION['PUSER'] = array_merge($_SESSION['PUSER'], $userInfo);
+		$this->__unsetCookie();
 	}
 
 	/**
@@ -52,10 +66,26 @@ class PUser extends Plugin
 	 */
 	public function signout()
 	{
-		setcookie('PUSER', false);
+		$this->__unsetCookie();
+		$this->__unsetSession();
+		if(isset($this->__config['returnUrl'])) SP::redirect($this->__config['returnUrl']);
+	}
+
+	/**
+	 * 删除cookie
+	 */
+	private function __unsetCookie()
+	{
+		setcookie('PUSER', false, 0, $this->__cookiePath, $this->__cookieDomain, $this->__cookieSecure, $this->__cookieHttpOnly);
+	}
+
+	/**
+	 * 删除session
+	 */
+	private function __unsetSession()
+	{
 		session_unset();
 		session_destroy();
-		if(isset($this->__config['returnUrl'])) SP::redirect($this->__config['returnUrl']);
 	}
 
 	/**

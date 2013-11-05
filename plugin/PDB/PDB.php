@@ -59,6 +59,16 @@ class PDB extends Plugin
 	}
 
 	/**
+	 * 复原一次性参数
+	 */
+	private function __recoverParams()
+	{
+		$this->__delCache = false;
+		$this->__addCache = false;
+		$this->__assocField = false;
+	}
+
+	/**
 	 * sql执行入口
 	 * @param  string $sql           	sql查询语句
 	 * @param  mix $params        		参数, 单个参数可以为字符串, 多参数为数组
@@ -73,11 +83,17 @@ class PDB extends Plugin
 			$key = md5(serialize($this->__config['dbs'][$this->__db]).$this->__assocField.$sql.serialize($params).$fetchFunction.serialize($fetchParam));
 			if($this->__delCache)
 			{
-				$this->__delCache = false;
+				$this->__recoverParams();
 				return SP::PCache()->del($key);
 			}
-			elseif($this->__addCache !== false && ($result = SP::PCache()->get($key)))
-				return unserialize($result);
+			elseif($this->__addCache !== false)
+			{
+				if($result = SP::PCache()->get($key))
+				{
+					$this->__recoverParams();
+					return unserialize($result);
+				}
+			}
 		}
 
 		$this->__connect();
@@ -103,6 +119,7 @@ class PDB extends Plugin
 				$this->__addCache = false;
 			}
 		}
+		$this->__recoverParams();
 		if($lastInsertId) return $lastInsertId;
 		return $result;
 	}
@@ -287,5 +304,5 @@ class PDB extends Plugin
 		return call_user_func_array(array($this->__pdo[$this->__db], $name), $arguments);
 	}
 
-	// TODO wherein查询
+	// TODO wherein query
 }

@@ -44,7 +44,12 @@ class PRoute extends Plugin
 		$rawPathInfo = $this->__getPathInfo();
 		$pathInfo = $this->__removeUrlSuffix( $rawPathInfo, $this->__urlSuffix);
 		foreach ($this->__rules as $i => $rule) if (($r=$this->__parseUrl($rule, $pathInfo, $rawPathInfo))!==false)
+		{
+			$req = explode('/', $r);
+			$_REQUEST['c'] = $_GET['c'] = $req[0];
+			$_REQUEST['a'] = $_GET['a'] = $req[1];
 			return;
+		}
 		throw new HttpException("Error Processing Request {$rawPathInfo}", 0, 404);
 		
 	}

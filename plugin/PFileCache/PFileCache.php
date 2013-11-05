@@ -15,7 +15,7 @@ class PFileCache extends Plugin implements ICache
 	 */
 	function __construct($config)
 	{
-		$defaultConfig = array('path' => APP_ROOT.DS.'protected'.DS.'cache'.DS, 'autoMkdir' => true);
+		$defaultConfig = array('path' => SP::getContentPath(), 'autoMkdir' => true);
 		if(!is_array($config)) $config = $defaultConfig;
 		if(isset($config['path']))
 			$this->__path = rtrim($config['path'], DS).DS;
@@ -40,7 +40,7 @@ class PFileCache extends Plugin implements ICache
 	{
 		$path = $this->__path . trim($path, '\/.') . DS . $fileName;
 		if($this->__autoMkdir && !is_dir(dirname($path)))
-			mkdir(dirname($path), '0666', true);
+			mkdir(dirname($path), 0777, true);
 		return file_put_contents($path, $content);
 	}
 

@@ -44,8 +44,8 @@ class PRender extends Plugin
 		{
 			preg_match('/^((.+):)?((.+)\/)?(.+)?$/', $path, $match);
 			$this->__layout = $match[2] ? : $this->__config['layout'];
-			$this->__dir = $match[4] ? : SP::getController();
-			$this->__page = $match[5] ? : SP::getAction();
+			$this->__dir = $match[4] ? : strtolower(SP::getController());
+			$this->__page = $match[5] ? : strtolower(SP::getAction());
 			@extract($data);
 			ob_start();
 			include APP_ROOT.DS.'protected'.DS.'view'.DS."{$this->__theme}".DS."{$this->__dir}".DS."{$this->__page}.html";

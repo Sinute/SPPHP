@@ -2,7 +2,7 @@
 // TODO local
 // TODO default error page
 // TODO autoload js/css
-// TODO verification code
+// TODO verification code + signin times
 defined('APP_ROOT') or die('No APP_ROOT');
 defined('SP_DEBUG') or define('SP_DEBUG', false);
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
@@ -137,11 +137,13 @@ class SP
 			defined('IS_AJAX') or define('IS_AJAX', (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') || isset($_GET['ajax']));
 			self::$__controller = $request->getController() ? : self::$__config['defaultController'];
 			self::$__action = $request->getAction() ? : self::$__config['defaultAction'];
-			$controllerName = ucfirst(self::$__controller).'Controller';
-			$actionName = ucfirst(self::$__action).'Action';
+			$controllerName = self::$__controller.'Controller';
+			$actionName = self::$__action.'Action';
 			require APP_ROOT.DS.'protected'.DS.'controller'.DS.'Controller.php';
-			if(!@include APP_ROOT.DS.'protected'.DS.'controller'.DS.$controllerName.'.php')
+			if(!file_exists(APP_ROOT.DS.'protected'.DS.'controller'.DS.$controllerName.'.php'))
 				throw new HttpException("Controller {$controllerName} not found", 0, 404);
+			require APP_ROOT.DS.'protected'.DS.'controller'.DS.$controllerName.'.php';
+				
 
 			// 创建控制器
 			$controller = new $controllerName;
@@ -267,9 +269,18 @@ class SP
 	 */
 	static public function redirect($url)
 	{
-		if(!IS_AJAX)
-			header('Location: '.$url);
+		if(IS_AJAX) return;
+		header('Location: '.$url);
 		die();
+	}
+
+	/**
+	 * 获取临时目录
+	 * @return string 目录路径
+	 */
+	static public function getContentPath()
+	{
+		return APP_ROOT.DS.'protected'.DS.'content';
 	}
 
 	/**
